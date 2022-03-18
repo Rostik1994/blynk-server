@@ -228,6 +228,23 @@ public class SetPropertyTest extends SingleServerInstancePerTest {
     }
 
     @Test
+    public void testSetWrongWidgetProperty4() throws Exception {
+        clientPair.appClient.send("loadProfileGzipped");
+        Profile profile = clientPair.appClient.parseProfile(1);
+
+        Widget widget = profile.dashBoards[0].findWidgetByPin(0, (short) 4, PinType.VIRTUAL);
+        assertEquals(widget.label, "Some Text");
+
+        clientPair.hardwareClient.setProperty(4, "YYY", "MyNewLabel");
+        verify(clientPair.hardwareClient.responseMock, timeout(500)).channelRead(any(), eq(new ResponseMessage(1, ILLEGAL_COMMAND_BODY)));
+
+        clientPair.appClient.send("loadProfileGzipped");
+        profile = clientPair.appClient.parseProfile(2);
+        widget = profile.dashBoards[0].findWidgetByPin(0, (short) 4, PinType.VIRTUAL);
+
+        assertEquals(widget.label, 1.234);
+
+    @Test
     public void testSetColorForWidget() throws Exception {
         clientPair.hardwareClient.setProperty(4, "color", "#23C48E");
         clientPair.hardwareClient.verifyResult(ok(1));
